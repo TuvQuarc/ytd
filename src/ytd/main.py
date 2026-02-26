@@ -176,12 +176,12 @@ def get_base_ydl_params(custom_logger: structlog.BoundLogger) -> Dict[str, Any]:
         'writesubtitles': True,
         'writethumbnail': True,
         'merge_output_format': 'mkv/mp4',
-        'http_headers': {
-            'User-Agent': (
-                'Mozilla/5.0 (iPhone17,5; CPU iPhone OS 18_3_2 like Mac OS X) '
-                'AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 FireKeepers/1.7.0'
-            ),
-        },
+        # 'http_headers': {
+        #     'User-Agent': (
+        #         'Mozilla/5.0 (iPhone17,5; CPU iPhone OS 18_3_2 like Mac OS X) '
+        #         'AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 FireKeepers/1.7.0'
+        #     ),
+        # },
         'continuedl': True,
         'retries': 15,
         'fragment_retries': 15,
