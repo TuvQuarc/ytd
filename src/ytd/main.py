@@ -94,7 +94,7 @@ def setup_logging() -> None:
     )
 
     file_formatter = structlog.stdlib.ProcessorFormatter(
-        processor=structlog.processors.JSONRenderer(),
+        processor=structlog.processors.JSONRenderer(ensure_ascii=False),
         foreign_pre_chain=base_processors,
     )
 
