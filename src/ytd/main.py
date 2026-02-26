@@ -190,6 +190,7 @@ def get_base_ydl_params(custom_logger: structlog.BoundLogger) -> Dict[str, Any]:
         'remote_components': ['ejs:github'],
         'embeddescription': True,
         'noprogress': True,
+        'encoding': 'utf-8',
         # Inject our custom logger adapter
         'logger': YtDlpStructlogAdapter(logger=custom_logger),
     }
@@ -321,7 +322,7 @@ def main(
 
 
 if __name__ == '__main__':
-    logger.info('application_started')
+    logger.info('application_started тест кириллицы')
     try:
         app(standalone_mode=False)
     except click.ClickException as e:
