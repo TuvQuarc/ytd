@@ -244,30 +244,37 @@ def is_single_video(url: str) -> bool:
 
 def download_single_video(url: str, params: Dict[str, Any], cookies: str = '') -> None:
     """
-    Downloads a single YouTube video using specific output templates.
+    Downloads a single YouTube video.
+    Pre-extracts metadata to reliably determine the author/channel name
+    and dynamically sets the output filename template.
     """
     local_params = copy.deepcopy(params)
-
-    # Search for Uploader/Creator/Channel name
-    video_info = YoutubeDL().extract_info(url, download=False)
-    author = 'Unknown Author'
-    if 'channel' in video_info and video_info['channel'] != 'None':
-        author = video_info['channel']
-    elif 'uploader' in video_info and video_info['uploader'] != 'None':
-        author = video_info['uploader']
-    elif 'creator' in video_info and video_info['creator'] != 'None':
-        author = video_info['creator']
-    elif 'uploader_id' in video_info and video_info['uploader_id'] != 'None':
-        author = video_info['uploader_id']
-    if author.startswith('@'):
-        author = author[1:]
-
-    local_params['outtmpl']['default'] = f'{author} - %(title)s.%(ext)s'
 
     if cookies:
         local_params['cookiefile'] = cookies
 
     with YoutubeDL(local_params) as ydl:
+        # 1. Extract info safely without downloading the video yet
+        info = ydl.extract_info(url, download=False) or {}
+
+        # 2. Safely find the author using dict.get().
+        # The 'or' operator will pick the first value that is not None/empty.
+        author = (
+                info.get('channel') or
+                info.get('uploader') or
+                info.get('creator') or
+                info.get('uploader_id') or
+                'Unknown Author'
+        )
+
+        # 3. Clean up the author name if it starts with '@'
+        if author.startswith('@'):
+            author = author[1:]
+
+        # 4. Update the output template dynamically for this specific instance
+        ydl.params['outtmpl']['default'] = f'{author} - %(title)s.%(ext)s'
+
+        # 5. Perform the actual download
         ydl.download([url])
 
 
