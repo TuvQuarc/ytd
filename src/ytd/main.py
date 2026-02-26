@@ -247,7 +247,22 @@ def download_single_video(url: str, params: Dict[str, Any], cookies: str = '') -
     Downloads a single YouTube video using specific output templates.
     """
     local_params = copy.deepcopy(params)
-    local_params['outtmpl']['default'] = '%(channel)s - %(title)s.%(ext)s'
+
+    # Search for Uploader/Creator/Channel name
+    video_info = YoutubeDL().extract_info(url, download=False)
+    author = 'Unknown Author'
+    if 'channel' in video_info and video_info['channel'] != 'None':
+        author = video_info['channel']
+    elif 'uploader' in video_info and video_info['uploader'] != 'None':
+        author = video_info['uploader']
+    elif 'creator' in video_info and video_info['creator'] != 'None':
+        author = video_info['creator']
+    elif 'uploader_id' in video_info and video_info['uploader_id'] != 'None':
+        author = video_info['uploader_id']
+    if author.startswith('@'):
+        author = author[1:]
+
+    local_params['outtmpl']['default'] = f'{author} - %(title)s.%(ext)s'
 
     if cookies:
         local_params['cookiefile'] = cookies
