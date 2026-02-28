@@ -3,7 +3,7 @@ import logging
 import pathlib
 import sys
 from logging.handlers import RotatingFileHandler
-from typing import Annotated, Any, Dict
+from typing import Annotated, Any, Dict, Optional
 from urllib.parse import urlparse
 
 import click
@@ -279,11 +279,12 @@ def download_single_video(url: str, params: Dict[str, Any], cookies: str = '') -
         ydl.download([url])
 
 
-def download_playlist(url: str, params: Dict[str, Any], cookies: str = '') -> None:
+def download_playlist(url: str, params: Dict[str, Any], cookies: str = '', start_from: int = 1) -> None:
     """
     Downloads a YouTube playlist, placing videos in a dedicated folder.
     """
     local_params = copy.deepcopy(params)
+    local_params['playlist_items'] = f'{start_from}::1'
     local_params['outtmpl']['default'] = '%(channel)s - %(playlist_title)s/%(playlist_index)03d - %(title)s.%(ext)s'
 
     if cookies:
@@ -302,7 +303,9 @@ logger = structlog.get_logger(__name__)
 @app.command()
 def main(
         url: Annotated[str, typer.Argument(help='The YouTube URL to download.')],
-        cookies: Annotated[str, typer.Option(help='Path to a Netscape-formatted cookies file.')] = '',
+        cookies: Annotated[Optional[str], typer.Option(help='Path to a Netscape-formatted cookies file.')] = '',
+        start_from: Annotated[Optional[int], typer.Option(help=('The number of the video in the playlist from which '
+                                                                'the download will start.'))] = 1,
 ) -> None:
     """
     A CLI tool to download videos and playlists from YouTube.
@@ -318,7 +321,7 @@ def main(
         download_single_video(url=url, params=base_params, cookies=cookies)
     else:
         logger.info('downloading_playlist', url=url)
-        download_playlist(url=url, params=base_params, cookies=cookies)
+        download_playlist(url=url, params=base_params, cookies=cookies, start_from=start_from)
 
 
 if __name__ == '__main__':
