@@ -376,7 +376,7 @@ if __name__ == '__main__':
         app(standalone_mode=False)
     except click.ClickException as e:
         logger.error('cli_error', error=str(e))
-        raise SystemExit(e.exit_code)
+        raise SystemExit(e.exit_code + 10)
     except subprocess.CalledProcessError as e:
         logger.error('upgrade_error', error=str(e))
         raise SystemExit(e.returncode)

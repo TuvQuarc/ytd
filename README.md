@@ -97,12 +97,15 @@ The tool writes logs to two destinations simultaneously:
 
 ## Exit Codes
 
-| Code | Meaning                             |
-|------|-------------------------------------|
-| `0`  | Success                             |
-| `1`  | Unhandled exception                 |
-| `2`  | yt-dlp download error               |
-| `3`  | Validation error (e.g. invalid URL) |
+| Code  | Meaning                             |
+|-------|-------------------------------------|
+| `0`   | Success                             |
+| `1`   | Unhandled exception                 |
+| `2`   | yt-dlp download error               |
+| `3`   | Validation error (e.g. invalid URL) |
+| `10+` | `uv` upgrade errors                 | 
+
+> Upgrade errors may produce different return codes depending on the `uv` tool.
 
 ## Supported URL Formats
 
