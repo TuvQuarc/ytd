@@ -295,17 +295,37 @@ def download_playlist(url: str, params: Dict[str, Any], cookies: str = '', start
 
 
 # Initialize Typer App and Logging
-app = typer.Typer(add_completion=False)
+app = typer.Typer(add_completion=False, context_settings={
+    'help_option_names': ['-h', '--help']
+})
 setup_logging()
 logger = structlog.get_logger(__name__)
 
 
 @app.command()
 def main(
-        urls: Annotated[list[str], typer.Argument(help='The YouTube URL (or URLs) to download.')],
-        cookies: Annotated[Optional[str], typer.Option(help='Path to a Netscape-formatted cookies file.')] = '',
-        start_from: Annotated[Optional[int], typer.Option(help=('The number of the video in the playlist from which '
-                                                                'the download will start.'))] = 1,
+        urls: Annotated[
+            list[str],
+            typer.Argument(
+                help='The YouTube URL (or URLs) to download.'
+            )
+        ],
+        cookies: Annotated[
+            Optional[str],
+            typer.Option(
+                '--cookies',
+                '-c',
+                help='Path to a Netscape-formatted cookies file.'
+            )
+        ] = '',
+        start_from: Annotated[
+            Optional[int],
+            typer.Option(
+                '--start-from',
+                '-s',
+                help='The number of the video in the playlist from which the download will start.'
+            )
+        ] = 1,
 ) -> None:
     """
     A CLI tool to download videos and playlists from YouTube.
