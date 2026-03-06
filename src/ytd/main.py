@@ -1,6 +1,7 @@
 import copy
 import logging
 import pathlib
+import subprocess
 import sys
 from logging.handlers import RotatingFileHandler
 from typing import Annotated, Any, Dict, Optional
@@ -309,7 +310,15 @@ def main(
             typer.Argument(
                 help='The YouTube URL (or URLs) to download.'
             )
-        ],
+        ] = None,
+        upgrade: Annotated[
+            Optional[bool],
+            typer.Option(
+                '--upgrade',
+                '-u',
+                help='Updating the `yt-dlp` dependency and exit.'
+            )
+        ] = False,
         cookies: Annotated[
             Optional[str],
             typer.Option(
@@ -330,6 +339,22 @@ def main(
     """
     A CLI tool to download videos and playlists from YouTube.
     """
+    if not upgrade and not urls:
+        raise click.ClickException('There are no download URLs.')
+
+    if upgrade:
+        output = subprocess.run(
+            ['uv', 'lock', '--no-cache', '--upgrade-package', 'yt-dlp'],
+            capture_output=True,
+            check=True,
+        )
+        logger.info(
+            f'Upgrade output:\n'
+            f'{output.stdout if output.stdout else "stdout is empty"}\n'
+            f'{output.stderr if output.stderr else ""}'
+        )
+        return
+
     base_params = get_base_ydl_params(custom_logger=logger)
 
     for url in urls:
@@ -352,6 +377,9 @@ if __name__ == '__main__':
     except click.ClickException as e:
         logger.error('cli_error', error=str(e))
         raise SystemExit(e.exit_code)
+    except subprocess.CalledProcessError as e:
+        logger.error('upgrade_error', error=str(e))
+        raise SystemExit(e.returncode)
     except ValueError as e:
         logger.error('validation_error', error=str(e))
         raise SystemExit(3)
