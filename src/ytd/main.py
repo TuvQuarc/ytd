@@ -302,7 +302,7 @@ logger = structlog.get_logger(__name__)
 
 @app.command()
 def main(
-        url: Annotated[str, typer.Argument(help='The YouTube URL to download.')],
+        urls: Annotated[list[str], typer.Argument(help='The YouTube URL (or URLs) to download.')],
         cookies: Annotated[Optional[str], typer.Option(help='Path to a Netscape-formatted cookies file.')] = '',
         start_from: Annotated[Optional[int], typer.Option(help=('The number of the video in the playlist from which '
                                                                 'the download will start.'))] = 1,
@@ -310,18 +310,19 @@ def main(
     """
     A CLI tool to download videos and playlists from YouTube.
     """
-    if not is_youtube_url(url):
-        logger.error('invalid_url', url=url)
-        raise ValueError(f'Not a valid YouTube URL: "{url}"')
-
     base_params = get_base_ydl_params(custom_logger=logger)
 
-    if is_single_video(url):
-        logger.info('downloading_single_video', url=url)
-        download_single_video(url=url, params=base_params, cookies=cookies)
-    else:
-        logger.info('downloading_playlist', url=url)
-        download_playlist(url=url, params=base_params, cookies=cookies, start_from=start_from)
+    for url in urls:
+        if not is_youtube_url(url):
+            logger.error('invalid_url', url=url)
+            raise ValueError(f'Not a valid YouTube URL: "{url}"')
+
+        if is_single_video(url):
+            logger.info('downloading_single_video', url=url)
+            download_single_video(url=url, params=base_params, cookies=cookies)
+        else:
+            logger.info('downloading_playlist', url=url)
+            download_playlist(url=url, params=base_params, cookies=cookies, start_from=start_from)
 
 
 if __name__ == '__main__':
