@@ -1,4 +1,5 @@
 import copy
+import importlib
 import logging
 import pathlib
 import subprocess
@@ -11,6 +12,7 @@ import click
 import structlog
 import typer
 import yt_dlp.utils
+import yt_dlp_ejs
 from yt_dlp import YoutubeDL
 
 
@@ -311,6 +313,14 @@ def main(
                 help='The YouTube URL (or URLs) to download.'
             )
         ] = None,
+        version: Annotated[
+            Optional[bool],
+            typer.Option(
+                '--version',
+                '-v',
+                help='Show version and exit.'
+            )
+        ] = False,
         upgrade: Annotated[
             Optional[bool],
             typer.Option(
@@ -339,8 +349,15 @@ def main(
     """
     A CLI tool to download videos and playlists from YouTube.
     """
-    if not upgrade and not urls:
+    if not version and not upgrade and not urls:
         raise click.ClickException('There are no download URLs.')
+
+    if version:
+        app_version = importlib.metadata.version("ytd")
+        print(f"ytd version:        {app_version}")
+        print(f"yt-dlp version:     {yt_dlp.version.__version__}")
+        print(f"yt-dlp-ejs version: {yt_dlp_ejs.version}\n")
+        return
 
     if upgrade:
         output = subprocess.run(
