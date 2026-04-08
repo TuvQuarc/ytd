@@ -10,3 +10,4 @@ uv.lock
 
 # Logs
 *.log
+/upgrade-tool.cmd
